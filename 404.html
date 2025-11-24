@@ -5,6 +5,11 @@
       (async()=>{
         const query=window.location.pathname.split('/').slice(1);console.log(query);
         const placeId=query[0];
+        if(placeId&&!Number(placeId)&&placeId.length==32){
+          const b=Uint8Array.from(atob(placeId.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
+          const h=[...b.subarray(8)].map(v=>v.toString(16).padStart(2,'0')).join('');
+          return window.location=`roblox://placeId=${new DataView(b.buffer).getBigUint64(0,true)}&gameInstanceId=${[h.slice(0,8),h.slice(8,12),h.slice(12,16),h.slice(16,20),h.slice(20)].join('-')}`;
+        }
         if(!placeId||!Number(placeId))return document.querySelector('html').innerHTML="placeId";
         const rbx='roblox://placeId='+placeId;
         if(query[1])return(window.location=rbx+'&gameInstanceId='+query[1]);
