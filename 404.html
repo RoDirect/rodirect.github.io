@@ -4,27 +4,30 @@
     <script>
       (async()=>{
         const query=window.location.pathname.split('/').slice(1);console.log(query);
-        const placeId=query[0];
-        if(placeId&&!Number(placeId)&&placeId.length==32){
-          const b=Uint8Array.from(atob(placeId.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
+        const id=query[0];
+        if(id&&!Number(id)&&id.length==32){
+          const b=Uint8Array.from(atob(id.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
           const h=[...b.subarray(8)].map(v=>v.toString(16).padStart(2,'0')).join('');
           return window.location=`roblox://placeId=${new DataView(b.buffer).getBigUint64(0,true)}&gameInstanceId=${[h.slice(0,8),h.slice(8,12),h.slice(12,16),h.slice(16,20),h.slice(20)].join('-')}`;
         }
+        const params=new URLSearchParams(window.location.search);
+        const get=k=>([...params].find(([x])=>x.toLowerCase()==k.toLowerCase())||[])[1];
+        const placeId=get('placeId')||get('pId')||get('id')||id;
         if(!placeId||!Number(placeId))return document.querySelector('html').innerHTML="placeId";
         const rbx='roblox://placeId='+placeId;
-        if(query[1])return(window.location=rbx+'&gameInstanceId='+query[1]);
-        const params=new URLSearchParams(window.location.search);
-        const gameInstanceId=params.get('gameInstanceId')||params.get('gIId')||params.get('gII')||params.get('gId')||params.get('sId');
-        const accessCode=params.get('accessCode');
-        const linkCode=params.get('linkCode');
-        const reservedServerAccessCode=params.get('reservedServerAccessCode');
-        if(!(gameInstanceId||accessCode||linkCode||reservedServerAccessCode))return window.location=rbx;
-        const launchData=params.get('launchData');
-        const joinAttemptOrigin=params.get('joinAttemptOrigin');
-        const callId=params.get('callId');
-        const browserTrackerId=params.get('browserTrackerId');
-        const referralPage=params.get('referralPage');
-        const referredByPlayerId=params.get('referredByPlayerId');
+        //if(query[1])return(window.location=rbx+'&gameInstanceId='+query[1]);
+        //const params=new URLSearchParams(window.location.search);
+        const gameInstanceId=get('gameInstanceId')||get('gIId')||get('gII')||get('gId')||get('sId')||query[1]?.match(/^\w{8}(-\w{4}){3}-\w{12}$/)?.[0];
+        const accessCode=get('accessCode');
+        const linkCode=get('linkCode')||query[1]?.match(/^\d{32}$/)?.[0];
+        const reservedServerAccessCode=get('reservedServerAccessCode');
+        //if(!(gameInstanceId||accessCode||linkCode||reservedServerAccessCode))return window.location=rbx;
+        const launchData=get('launchData');
+        const joinAttemptOrigin=get('joinAttemptOrigin');
+        const callId=get('callId');
+        const browserTrackerId=get('browserTrackerId');
+        const referralPage=get('referralPage');
+        const referredByPlayerId=get('referredByPlayerId');
         const args={
           gameInstanceId,accessCode,linkCode,reservedServerAccessCode,launchData,
           joinAttemptOrigin,callId,browserTrackerId,referralPage,referredByPlayerId
