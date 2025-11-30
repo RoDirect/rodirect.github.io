@@ -10,7 +10,7 @@
           const h=[...b.subarray(8)].map(v=>v.toString(16).padStart(2,'0')).join('');
           id=new DataView(b.buffer).getBigUint64(0,true);
           if(/^\d{32}$/.test(h))query[1]=h;else
-          if(/^[A-f\d]{8}(?:\-[A-f\d]{4}){3}\-[A-f\d]{12}$/.test(h))query[1]=[h.slice(0,8),h.slice(8,12),h.slice(12,16),h.slice(16,20),h.slice(20)].join('-');
+          if(/^[A-f\d]{32}$/.test(h))query[1]=[h.slice(0,8),h.slice(8,12),h.slice(12,16),h.slice(16,20),h.slice(20)].join('-');
         }
         const params=new URLSearchParams(window.location.search);
         const get=k=>([...params].find(([x])=>x.toLowerCase()==k.toLowerCase())||[])[1];
