@@ -4,35 +4,34 @@
     <script>
       (async()=>{
         const query=window.location.pathname.split('/').slice(1);console.log(query);
-        const id=query[0];
+        var id=query[0];
         if(id&&!Number(id)&&id.length==32){
           const b=Uint8Array.from(atob(id.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
           const h=[...b.subarray(8)].map(v=>v.toString(16).padStart(2,'0')).join('');
-          return window.location=`roblox://placeId=${new DataView(b.buffer).getBigUint64(0,true)}&gameInstanceId=${[h.slice(0,8),h.slice(8,12),h.slice(12,16),h.slice(16,20),h.slice(20)].join('-')}`;
+          id=new DataView(b.buffer).getBigUint64(0,true);
+          if(/^\d{32}$/.test(h))query[1]=h;else
+          if(/^[A-f\d]{8}(?:\-[A-f\d]{4}){3}\-[A-f\d]{12}$/.test(h))query[1]=[h.slice(0,8),h.slice(8,12),h.slice(12,16),h.slice(16,20),h.slice(20)].join('-');
         }
         const params=new URLSearchParams(window.location.search);
         const get=k=>([...params].find(([x])=>x.toLowerCase()==k.toLowerCase())||[])[1];
         const placeId=get('placeId')||get('pId')||get('id')||id;
         if(!placeId||!Number(placeId))return document.querySelector('html').innerHTML="placeId";
         const rbx='roblox://placeId='+placeId;
-        //if(query[1])return(window.location=rbx+'&gameInstanceId='+query[1]);
-        //const params=new URLSearchParams(window.location.search);
-        const gameInstanceId=get('gameInstanceId')||get('gIId')||get('gII')||get('gId')||get('sId')||query[1]?.match(/^\w{8}(-\w{4}){3}-\w{12}$/)?.[0];
+        const gameInstanceId=get('gameInstanceId')||get('gIId')||get('gII')||get('gId')||get('sId')||query[1]?.match(/^[A-f\d]{8}(?:\-[A-f\d]{4}){3}\-[A-f\d]{12}$/)?.[0];
         const accessCode=get('accessCode');
         const linkCode=get('linkCode')||query[1]?.match(/^\d{32}$/)?.[0];
         const reservedServerAccessCode=get('reservedServerAccessCode');
-        //if(!(gameInstanceId||accessCode||linkCode||reservedServerAccessCode))return window.location=rbx;
         const launchData=get('launchData');
         const joinAttemptOrigin=get('joinAttemptOrigin');
         const callId=get('callId');
         const browserTrackerId=get('browserTrackerId');
         const referralPage=get('referralPage');
         const referredByPlayerId=get('referredByPlayerId');
-        const args={
+        const args=Object.entries({
           gameInstanceId,accessCode,linkCode,reservedServerAccessCode,launchData,
           joinAttemptOrigin,callId,browserTrackerId,referralPage,referredByPlayerId
-        };
-        window.location=rbx+'&'+Object.entries(args).filter(v=>v[1]).map(v=>v.join('=')).join('&');
+        }).filter(v=>v[1]).map(v=>v.join('=')).join('&');
+        window.location=rbx+(args?'&'+args:'');
       })()
     </script>
   </head>
